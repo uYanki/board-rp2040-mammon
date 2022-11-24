@@ -1,0 +1,10 @@
+﻿基本测试
+
+- RGBLED
+- Timer
+- GPIO（LED）
+- GPIO.IRQ（SW1、SW2、SW、SW3）
+- PWM（BUZZER）
+- ADC（AD_RT、AD_VABT）
+- SPI（TFCard）
+- I2C（MPU6050、SHT30）
