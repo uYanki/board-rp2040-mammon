@@ -28,24 +28,24 @@
 #define PIN_SHT30_SCL   PIN_I2C0_SCL
 
 #define PIN_SPI0_MISO   16
-#define PIN_SPI0_SCLk   18
+#define PIN_SPI0_SCLK   18
 #define PIN_SPI0_MOSI   19
 
 #define SPI_FONT        spi0
 #define PIN_FONT_MISO   PIN_SPI0_MISO
-#define PIN_FONT_SCLk   PIN_SPI0_SCLk
+#define PIN_FONT_SCLk   PIN_SPI0_SCLK
 #define PIN_FONT_MOSI   PIN_SPI0_MOSI
 #define PIN_FONT_CS     17
 
 #define SPI_TF          spi0
 #define PIN_TF_MISO     PIN_SPI0_MISO
-#define PIN_TF_SCLk     PIN_SPI0_SCLk
+#define PIN_TF_SCLk     PIN_SPI0_SCLK
 #define PIN_TF_MOSI     PIN_SPI0_MOSI
 #define PIN_TF_CS       14
 
 #define SPI_LCD         spi0
 #define PIN_LCD_MISO    PIN_SPI0_MISO
-#define PIN_LCD_SCLk    PIN_SPI0_SCLk
+#define PIN_LCD_SCLk    PIN_SPI0_SCLK
 #define PIN_LCD_MOSI    PIN_SPI0_MOSI
 #define PIN_LCD_BL      22  // 0 = on, 1 = off
 #define PIN_LCD_RST     23
