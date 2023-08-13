@@ -3,7 +3,7 @@
 
 // params table
 
-#include "types.h"
+#include "usdk.types.h"
 
 typedef struct {
     u8* ram_address;

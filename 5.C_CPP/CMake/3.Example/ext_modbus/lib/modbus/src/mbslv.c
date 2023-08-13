@@ -83,8 +83,8 @@ static void mb_rx_rtu(mbslv_context_t* ctx)
 
     if (ctx->request.frame.address != ctx->address || ctx->address == 0) {
         // It's a valid frame, but not for us. Maybe someone else can handle it
-        if (ctx->cb.rx) {
-            ctx->cb.rx(ctx->request.data, ctx->request.pos);
+        if (ctx->cb.raw_tx) {
+            ctx->cb.raw_tx(ctx->request.data, ctx->request.pos);
         }
         return;
     }

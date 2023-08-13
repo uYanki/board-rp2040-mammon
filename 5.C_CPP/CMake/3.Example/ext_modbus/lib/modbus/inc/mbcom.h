@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #define MBRTU_FRAME_MAXSIZEE 256
-#define MB_MAX_REGISTERS     123
+#define MB_MAX_REGISTERS     64  // 125
 
 enum mb_state {
     MB_DATA_READY,

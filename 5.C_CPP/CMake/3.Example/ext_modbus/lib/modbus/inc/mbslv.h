@@ -16,7 +16,7 @@ typedef struct {
     mb_result_e (*write_multiple_coils)(uint16_t start, uint8_t* data, uint16_t count);
     mb_result_e (*write_multiple_registers)(uint16_t start, uint16_t* data, uint16_t count);
 
-    void (*rx)(uint8_t* data, size_t len);
+    void (*raw_tx)(uint8_t* data, size_t len);  // this function will be called, and when the current frame is not mine, it may be another frame
     void (*tx)(uint8_t* data, size_t len);
     uint32_t (*get_tick_ms)(void);
 } mbslv_cb_t;

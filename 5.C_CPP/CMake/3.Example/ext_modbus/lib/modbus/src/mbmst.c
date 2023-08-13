@@ -47,6 +47,7 @@ static enum mb_state mb_check_buf(mbmst_context_t* ctx)
                 return MB_ERROR;
             }
         }
+
         switch (ctx->response.frame.function) {
             case MB_READ_COIL_STATUS:
             case MB_READ_INPUT_STATUS:
@@ -87,8 +88,8 @@ static void mb_rx_rtu(mbmst_context_t* ctx)
     }
 
     if (ctx->current_request->raw) {
-        if (ctx->cb.rx) {
-            ctx->cb.rx(ctx->response.data, ctx->response.pos);
+        if (ctx->cb.raw_tx) {
+            ctx->cb.raw_tx(ctx->response.data, ctx->response.pos);
         }
         return;
     }
@@ -114,6 +115,16 @@ static void mb_rx_rtu(mbmst_context_t* ctx)
             }
             break;
         case MB_READ_HOLDING_REGISTERS:
+            if (ctx->cb.read_holding_registers) {
+                // This will make sure the registers are aligned at 16 bits
+                memcpy(registers, &ctx->response.frame.data[1], ctx->response.frame.data[0]);
+                for (int i = 0; i < ctx->current_request->count; i++) {
+                    registers[i] = __builtin_bswap16(registers[i]);
+                }
+                ctx->cb.read_holding_registers(ctx->current_request->frame.address, ctx->current_request->start,
+                                               ctx->current_request->count, registers);
+            }
+            break;
         case MB_READ_INPUT_REGISTERS:
             if (ctx->cb.read_input_registers) {
                 // This will make sure the registers are aligned at 16 bits
@@ -121,14 +132,8 @@ static void mb_rx_rtu(mbmst_context_t* ctx)
                 for (int i = 0; i < ctx->current_request->count; i++) {
                     registers[i] = __builtin_bswap16(registers[i]);
                 }
-                if (MB_READ_HOLDING_REGISTERS == ctx->response.frame.function) {
-                    ctx->cb.read_holding_registers(ctx->current_request->frame.address, ctx->current_request->start,
-                                                   ctx->current_request->count, registers);
-
-                } else {
-                    ctx->cb.read_input_registers(ctx->current_request->frame.address, ctx->current_request->start,
-                                                 ctx->current_request->count, registers);
-                }
+                ctx->cb.read_input_registers(ctx->current_request->frame.address, ctx->current_request->start,
+                                             ctx->current_request->count, registers);
             }
             break;
         case MB_WRITE_SINGLE_COIL:
@@ -222,7 +227,7 @@ int mbmst_read_write(mbmst_context_t* ctx, uint8_t address, uint8_t fn, uint16_t
     request->frame.function = fn;
     request->start          = start;
     request->count          = count;
-    request->pos            = sizeof(mbrtu_frame_t);
+    request->pos            = offsetof(mbmst_buffer_t, frame.data);
     mb_request_add(request, start);
     mb_request_add(request, count);
     mb_request_add(request, mb_crc16(request->data, request->pos));

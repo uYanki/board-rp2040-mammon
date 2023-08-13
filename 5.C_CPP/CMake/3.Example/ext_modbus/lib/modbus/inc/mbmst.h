@@ -14,7 +14,7 @@ typedef struct {
     void (*read_input_registers)(uint8_t address, uint16_t start, uint16_t count, uint16_t* data);
     void (*status)(uint8_t address, uint8_t function, uint8_t error_code);
 
-    void (*rx)(uint8_t* data, size_t len);
+    void (*raw_tx)(uint8_t* data, size_t len);
     void (*tx)(uint8_t* data, size_t len);
 
     uint32_t (*get_tick_ms)(void);

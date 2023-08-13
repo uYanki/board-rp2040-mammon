@@ -12,7 +12,7 @@ void paratbl_config(para_tbl_t* tbl, void* ram_address, u32 flash_start, u32 len
     tbl->ram_length    = length;
     tbl->flash_start   = flash_start;
     tbl->flash_offset  = (256 * 1024u);
-    tbl->flash_address = (u8*)XIP_BASE + tbl->flash_start;
+    tbl->flash_address = (u8*)XIP_BASE + tbl->flash_start + tbl->flash_offset;
 
     tbl->flash_page_size   = FLASH_PAGE_SIZE;
     tbl->flash_pages_count = tbl->ram_length / tbl->flash_page_size;
@@ -47,5 +47,5 @@ void paratbl_save(para_tbl_t* tbl)
 
 void paratbl_load(para_tbl_t* tbl)
 {
-    memcpy(tbl->ram_address, tbl->flash_address + tbl->flash_offset, tbl->ram_length);
+    memcpy(tbl->ram_address, tbl->flash_address, tbl->ram_length);
 }
