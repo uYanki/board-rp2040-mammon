@@ -28,7 +28,7 @@
 
 修改相应的比特位，触发相应命令。
 
-如修改 modbus 的从机地址后，往 bit0,bit1 写1，系统保存参数表到 flash 里，然后芯片复位。
+如修改 modbus 的从机地址后，往 bit0,bit2 写1，系统保存参数表到 flash 里，然后芯片复位。
 
 在从 flash 加载数据到参数表，即完成 modbus 的从机地址切换。（注：此时的 mbpoll 需重新连接）
 
@@ -36,7 +36,7 @@
 
 （需启用 `CONFIG_EXT_MODULE`）
 
-Pico 周期性读取接在串口（GP8、GP9）上的从站内的寄存器到内存中。然后 mbpoll 周期性读取 Pico 的内存。
+Pico 周期性读取接在串口（GP8、GP9）上的从站内的寄存器到内存中，mbpoll 周期性读取 Pico 的内存。
 
 注：`ext_cfg_x.mbp`、`ext_reg_x.mbp` 的 `x` 指的是 第几组映射。通过在程序中的宏定义 `EXT_MODULE_COUNT` 配置组数。
 
@@ -50,7 +50,9 @@ Pico 周期性读取接在串口（GP8、GP9）上的从站内的寄存器到内
 
 （需禁用 `CONFIG_EXT_MODULE`）
 
-当前帧不是 Pico 的帧时，通过串口 GP8、GP9 进行传输接收到的原始数据转发出去。
+从 usb 口接收到的帧不是 Pico 的帧时，通过串口（GP8、GP9 ）进行传输接收到的原始数据转发出去。
+
+将从串口接收到的帧从 usb 口发出去。
 
 ![transparent_forwarding](.assest/README/transparent_forwarding.png)
 
