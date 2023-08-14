@@ -44,7 +44,8 @@ static inline void mb_reset(mbslv_context_t* ctx)
 static void mb_response_tx(mbslv_context_t* ctx)
 {
     // Calculate CRC
-    uint16_t crc                            = mb_crc16(ctx->response.data, ctx->response.pos);
+    uint16_t crc = mb_crc16(ctx->response.data, ctx->response.pos);
+
     ctx->response.data[ctx->response.pos++] = (crc >> 8) & 0xFF;
     ctx->response.data[ctx->response.pos++] = crc & 0xFF;
 
@@ -65,9 +66,7 @@ void mbslv_add_response(mbslv_context_t* ctx, uint16_t value)
 {
     ctx->response.data[ctx->response.pos++] = (value >> 8) & 0xFF;
     ctx->response.data[ctx->response.pos++] = value & 0xFF;
-    if (ctx->response.frame.function <= MB_READ_INPUT_REGISTERS) {
-        ctx->response.frame.data[0] += sizeof(uint16_t);  // Size byte
-    }
+    ctx->response.frame.data[0] += sizeof(uint16_t);  // Size byte
 }
 
 static void mb_rx_rtu(mbslv_context_t* ctx)
@@ -81,8 +80,16 @@ static void mb_rx_rtu(mbslv_context_t* ctx)
         return;
     }
 
-    if (ctx->request.frame.address != ctx->address || ctx->address == 0) {
-        // It's a valid frame, but not for us. Maybe someone else can handle it
+    // is this frame for all device ?
+    bool broadcast = (ctx->request.frame.address == 0);
+
+    if (broadcast) {
+        // It's a broadcast frame
+        if (ctx->cb.raw_tx) {
+            ctx->cb.raw_tx(ctx->request.data, ctx->request.pos);
+        }
+    } else if (ctx->request.frame.address != ctx->address || ctx->address == 0) {
+        // It's a valid frame, but not for us. Maybe someone else can handle it.
         if (ctx->cb.raw_tx) {
             ctx->cb.raw_tx(ctx->request.data, ctx->request.pos);
         }
@@ -92,58 +99,52 @@ static void mb_rx_rtu(mbslv_context_t* ctx)
     uint16_t start = (uint16_t)__builtin_bswap16(*(uint16_t*)&ctx->request.frame.data[0]);
     uint16_t value = (uint16_t)__builtin_bswap16(*(uint16_t*)&ctx->request.frame.data[2]);
 
-    ctx->response.frame.address  = ctx->address;
-    ctx->response.frame.function = ctx->request.frame.function;
-    ctx->response.pos            = offsetof(mbslv_buffer_t, frame.data);
+    if (!broadcast) {
+        // notice: broadcast don't have response
 
-    if (ctx->response.frame.function <= MB_READ_INPUT_REGISTERS) {
-        ctx->response.frame.data[0] = 0;
-        ctx->response.pos++;
+        res = MB_ERROR_ILLEGAL_DATA_ADDRESS;
+
+        ctx->response.frame.address  = ctx->address;
+        ctx->response.frame.function = ctx->request.frame.function;
+        ctx->response.pos            = offsetof(mbslv_buffer_t, frame.data);
+
+        if (ctx->response.frame.function <= MB_READ_INPUT_REGISTERS) {
+            ctx->response.frame.data[0] = 0;
+            ctx->response.pos++;
+        }
+
+        switch (ctx->request.frame.function) {
+            case MB_READ_COIL_STATUS:
+                if (ctx->cb.read_coil_status) { res = ctx->cb.read_coil_status(start, value); }
+                break;
+            case MB_READ_INPUT_STATUS:
+                if (ctx->cb.read_coil_status) { res = ctx->cb.read_input_status(start, value); }
+                break;
+            case MB_READ_HOLDING_REGISTERS:
+                if (ctx->cb.read_holding_registers) { res = ctx->cb.read_holding_registers(start, value); }
+                break;
+            case MB_READ_INPUT_REGISTERS:
+                if (ctx->cb.read_input_registers) { res = ctx->cb.read_input_registers(start, value); }
+                break;
+            default:
+                break;
+        }
     }
 
-    res = MB_ERROR_ILLEGAL_DATA_ADDRESS;
-
     switch (ctx->request.frame.function) {
-        case MB_READ_COIL_STATUS:
-            if (ctx->cb.read_coil_status) {
-                res = ctx->cb.read_coil_status(start, value);
-            }
-            break;
-        case MB_READ_INPUT_STATUS:
-            if (ctx->cb.read_coil_status) {
-                res = ctx->cb.read_input_status(start, value);
-            }
-            break;
-        case MB_READ_HOLDING_REGISTERS:
-            if (ctx->cb.read_holding_registers) {
-                res = ctx->cb.read_holding_registers(start, value);
-            }
-            break;
-        case MB_READ_INPUT_REGISTERS:
-            if (ctx->cb.read_input_registers) {
-                res = ctx->cb.read_input_registers(start, value);
-            }
-            break;
         case MB_WRITE_SINGLE_COIL:
-            if (ctx->cb.write_single_coil) {
-                res = ctx->cb.write_single_coil(start, value);
-            }
+            if (ctx->cb.write_single_coil) { res = ctx->cb.write_single_coil(start, value); }
             break;
         case MB_WRITE_SINGLE_REGISTER:
-            if (ctx->cb.write_single_register) {
-                res = ctx->cb.write_single_register(start, value);
-            }
+            if (ctx->cb.write_single_register) { res = ctx->cb.write_single_register(start, value); }
             break;
         case MB_WRITE_MULTIPLE_COILS:
-            if (ctx->cb.write_multiple_coils) {
-                res = ctx->cb.write_multiple_coils(start, &ctx->request.frame.data[5], value);
-            }
+            if (ctx->cb.write_multiple_coils) { res = ctx->cb.write_multiple_coils(start, &ctx->request.frame.data[5], value); }
             break;
         case MB_WRITE_MULTIPLE_REGISTERS:
             if (ctx->cb.write_multiple_registers) {
                 // This will make sure the registers are aligned at 16 bits
                 memcpy(registers, &ctx->request.frame.data[5], ctx->request.frame.data[4]);
-
                 for (int i = 0; i < value; i++) {
                     registers[i] = __builtin_bswap16(registers[i]);
                 }
@@ -154,14 +155,22 @@ static void mb_rx_rtu(mbslv_context_t* ctx)
             break;
     }
 
-    if (MB_NO_ERROR == res) {
-        if (ctx->request.frame.function >= MB_WRITE_SINGLE_COIL) {
-            mbslv_add_response(ctx, start);
-            mbslv_add_response(ctx, value);
+    if (!broadcast) {
+        if (MB_NO_ERROR == res) {
+            switch (ctx->request.frame.function) {
+                case MB_WRITE_SINGLE_COIL:
+                case MB_WRITE_SINGLE_REGISTER:
+                case MB_WRITE_MULTIPLE_COILS:
+                case MB_WRITE_MULTIPLE_REGISTERS:
+                    mbslv_add_response(ctx, start);
+                    mbslv_add_response(ctx, value);
+                    break;
+            }
+
+            mb_response_tx(ctx);
+        } else {
+            mb_error(ctx, res);
         }
-        mb_response_tx(ctx);
-    } else {
-        mb_error(ctx, res);
     }
 }
 

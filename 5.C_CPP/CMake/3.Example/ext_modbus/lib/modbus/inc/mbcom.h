@@ -46,7 +46,7 @@ typedef enum {
     MB_WRITE_SINGLE_COIL        = 0x05,
     MB_WRITE_SINGLE_REGISTER    = 0x06,
     MB_WRITE_MULTIPLE_COILS     = 0x0F,
-    MB_WRITE_MULTIPLE_REGISTERS = 0x10
+    MB_WRITE_MULTIPLE_REGISTERS = 0x10,
 } mb_function_e;
 
 typedef struct __attribute((packed)) {

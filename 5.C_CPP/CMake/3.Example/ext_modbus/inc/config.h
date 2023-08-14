@@ -3,8 +3,8 @@
 #define CONFIG_PID_MODULE 1
 #define CONFIG_LED_MODULE 1
 
-#define CONFIG_EXT_MODULE 1  // enable
-// #define CONFIG_EXT_MODULE 0 // disable
+// #define CONFIG_EXT_MODULE 1  // enable
+#define CONFIG_EXT_MODULE 0  // disable
 
 // #define CONFIG_ADC_MODULE 0
 

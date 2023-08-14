@@ -56,3 +56,12 @@ Pico 周期性读取接在串口（GP8、GP9）上的从站内的寄存器到内
 
 ![transparent_forwarding](.assest/README/transparent_forwarding.png)
 
+#### 忘记设备地址了？
+
+使用广播帧 `0` 进行地址设置从机地址。
+
+![5](.assest/README/5.png)
+
+触发保存（bit2）和设备重启（bit0）。
+
+![6](.assest/README/6.png)
