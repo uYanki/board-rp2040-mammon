@@ -1,0 +1,3 @@
+..\..\libraries\st7789\lcd.c,
+..\..\libraries\st7789\lcd_conf.h 
+TO template RTE NOPRINT

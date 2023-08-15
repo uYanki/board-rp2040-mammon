@@ -1,0 +1,109 @@
+/****************************************************************************
+ *  Copyright 2021 Gorgon Meducer (Email:embedded_zhuoran@hotmail.com)       *
+ *                                                                           *
+ *  Licensed under the Apache License, Version 2.0 (the "License");          *
+ *  you may not use this file except in compliance with the License.         *
+ *  You may obtain a copy of the License at                                  *
+ *                                                                           *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
+ *                                                                           *
+ *  Unless required by applicable law or agreed to in writing, software      *
+ *  distributed under the License is distributed on an "AS IS" BASIS,        *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. *
+ *  See the License for the specific language governing permissions and      *
+ *  limitations under the License.                                           *
+ *                                                                           *
+ ****************************************************************************/
+/*============================ INCLUDES ======================================*/
+#include "pico/stdlib.h"
+#include "perf_counter.h"
+// #include "bsp/bsp.h"
+
+#include <stdio.h>
+
+#include "RTE_Components.h"
+#if defined(RTE_Compiler_EventRecorder) && defined(RTE_Compiler_IO_STDOUT_EVR)
+#include <EventRecorder.h>
+#endif
+
+#if defined(RTE_Script_PikaScript)
+#include "pikaScript.h"
+#endif
+
+#if defined(__RTE_ACCELERATION_ARM_2D__) || defined(RTE_Acceleration_Arm_2D)
+#include "arm_2d.h"
+#include "arm_2d_helper.h"
+#include "arm_2d_disp_adapters.h"
+#include "arm_2d_scenes.h"
+#endif
+
+#if defined(RTE_Acceleration_Arm_2D_Extra_Benchmark)
+#include "arm_2d_benchmark.h"
+#endif
+
+/*============================ MACROS ========================================*/
+/*============================ MACROFIED FUNCTIONS ===========================*/
+/*============================ TYPES =========================================*/
+/*============================ GLOBAL VARIABLES ==============================*/
+/*============================ LOCAL VARIABLES ===============================*/
+/*============================ PROTOTYPES ====================================*/
+/*============================ IMPLEMENTATION ================================*/
+
+void SysTick_Handler(void)
+{
+}
+
+static void system_init(void)
+{
+    extern void SystemCoreClockUpdate();
+
+    SystemCoreClockUpdate();
+    /*! \note if you do want to use SysTick in your application, please use
+     *!       init_cycle_counter(true);
+     *!       instead of
+     *!       init_cycle_counter(false);
+     */
+    init_cycle_counter(false);
+
+#if defined(RTE_Compiler_EventRecorder) && defined(RTE_Compiler_IO_STDOUT_EVR)
+    EventRecorderInitialize(0, 1);
+#endif
+    stdio_init_all();
+}
+
+int main(void)
+{
+    system_init();
+
+    extern void app_entry(void* arg);
+    app_entry(NULL);
+
+#if defined(RTE_Script_PikaScript)
+    pikaScriptInit();
+#endif
+
+#if defined(__PERF_COUNTER_COREMARK__) && __PERF_COUNTER_COREMARK__
+    printf("\r\nRun Coremark 1.0...\r\n");
+    coremark_main();
+#endif
+
+#if defined(__RTE_ACCELERATION_ARM_2D__) || defined(RTE_Acceleration_Arm_2D)
+    arm_2d_init();
+    disp_adapter0_init();
+
+#if defined(RTE_Acceleration_Arm_2D_Extra_Benchmark)
+    arm_2d_run_benchmark();
+#else
+    // arm_2d_scene_player_switch_to_next_scene(&DISP0_ADAPTER);
+#endif
+
+#endif
+    while (true) {
+        sleep_ms(50);
+
+#if defined(__RTE_ACCELERATION_ARM_2D__) || defined(RTE_Acceleration_Arm_2D)
+        disp_adapter0_task();
+#endif
+    }
+    // return 0;
+}
