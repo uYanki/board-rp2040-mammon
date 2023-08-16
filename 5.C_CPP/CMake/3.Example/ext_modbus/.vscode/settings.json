@@ -13,7 +13,9 @@
         "xstring": "c",
         "xutility": "c",
         "stdio.h": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "uart.h": "c",
+        "cstdio": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

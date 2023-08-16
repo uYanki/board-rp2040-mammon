@@ -1,10 +1,3 @@
-
-
-# # include(pico_sdk_import.cmake)
-# # add_link_options("-Wl,--print-memory-usage")
-
-
-
 cmake_minimum_required(VERSION 3.12)
 
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
