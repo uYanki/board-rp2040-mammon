@@ -2,8 +2,6 @@ add_executable(tcp_server
         tcp_server.cpp
         )
 
-target_include_directories(tcp_server PRIVATE ${PROJECT_SOURCE_DIR}/lib/espat)
-
 # Pull in our pico_stdlib which pulls in commonly used features
 target_link_libraries(tcp_server pico_stdlib espat)
 

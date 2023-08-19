@@ -2,8 +2,6 @@ add_executable(udp_client
         udp_client.cpp
         )
 
-target_include_directories(udp_client PRIVATE ${PROJECT_SOURCE_DIR}/lib/espat)
-
 # Pull in our pico_stdlib which aggregates commonly used features
 target_link_libraries(udp_client pico_stdlib espat)
 

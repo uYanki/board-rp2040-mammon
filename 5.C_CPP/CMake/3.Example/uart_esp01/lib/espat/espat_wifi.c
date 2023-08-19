@@ -44,10 +44,11 @@ bool at_recv_ack(const char* ack, uint64_t timeout)
 {
     static char m_buf[64 + 1] = {0};
 
-    uint8_t  n = 0;  // counter
-    uint64_t t = time_us_64() + timeout;
+    uint8_t n = 0;  // counter
 
-    while (time_us_64() < t) {
+    absolute_time_t t = make_timeout_time_us(timeout);
+
+    while (!time_reached(t)) {
         while (at_readable_us(AT_TIME_10MS)) {
             m_buf[n] = at_getc();
             if (++n == 64) break;

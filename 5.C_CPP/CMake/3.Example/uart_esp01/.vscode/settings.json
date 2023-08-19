@@ -1,9 +1,6 @@
 {
     "files.associations": {
         "espat_wifi.h": "c",
-        "espat_wifi_conf.h": "c",
-        "string.h": "c",
-        "stdint.h": "c",
-        "stdio.h": "c"
+        "espat_wifi_conf.h": "c"
     }
 }
