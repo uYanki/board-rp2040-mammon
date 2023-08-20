@@ -81,11 +81,11 @@ setx PICO_SDK_PATH "[path]\pico-sdk"
 PICO_SDK_PATH = C:\Users\Administrator\Desktop\pico\pico-sdk
 ```
 
-![1](.assest/1.png)
+![1](.assest/README/1.png)
 
 * cmake.generator = NMake Makefiles、MinGW Makefiles（根据安装的 Compiler 来选）
 
-![2](.assest/2.png)
+![2](.assest/README/2.png)
 
 #### 编译例程
 
@@ -93,7 +93,7 @@ PICO_SDK_PATH = C:\Users\Administrator\Desktop\pico\pico-sdk
 
 打开 Visual Studio 的命令行工具 Developer Command Prompt：
 
-[<img src=".assest/3.png" alt="image-1" style="zoom: 50%;" />]() [<img src=".assest/4.png" alt="image-2" style="zoom: 50%;" />]()
+[<img src=".assest/README/3.png" alt="image-1" style="zoom: 50%;" />]() [<img src=".assest/README/4.png" alt="image-2" style="zoom: 50%;" />]()
 
 进入 examples 文件夹
 
@@ -141,7 +141,7 @@ mingw32-make
 
 ##### ③ VSCode
 
-![5](.assest/5.png)
+![5](.assest/README/5.png)
 
 选择编译器，选择项目，构建。
 
@@ -174,15 +174,15 @@ git clone https://github.com/raspberrypi/pico-project-generator.git
 python ./pico_project.py --gui
 ```
 
-![6](.assest/6.png)
+![6](.assest/README/6.png)
 
 若窗口高度过高且屏幕较小，无法看到底下的项目生成按钮（OK），可屏蔽窗口中的图片横幅（上图是已屏蔽的了），在 `pico_project.py` 中将这两句给屏蔽即可。
 
-![7](.assest/7.png)
+![7](.assest/README/7.png)
 
 生成 CMake 文件（创建完成后不会自动退出）。
 
-![8](.assest/8.png)
+![8](.assest/README/8.png)
 
 使用 VSCode 打开项目即可，然后按编译例程的步骤走即可。
 
@@ -190,7 +190,7 @@ python ./pico_project.py --gui
 
 ① 波特率等参数任意，但 `DTR` 必须勾选，才会有数据输出。
 
-![9](.assest/9.png)
+![9](.assest/README/9.png)
 
 ② 使用 `MobaXterm`  
 
@@ -208,6 +208,47 @@ int main()
     }
 
     return 0;
+}
+```
+
+参考 `pico-setup-windows-1.5.1` 的配置：
+
+* 环境变量
+
+![1](.assest/README/10.png)
+
+`PICO_INSTALL_PATH`
+
+![2](.assest/README/11.png)
+
+`PICO_SDK_PATH`
+
+![3](.assest/README/12.png)
+
+* json
+
+`.vscode/c_cpp_properties.json`
+
+```json
+{
+    // from https://github.com/raspberrypi/pico-setup-windows/releases
+    // -> packages\pico-examples\ide\vscode
+    "configurations": [
+        {
+            "name": "Pico",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${env:PICO_SDK_PATH}/**"
+            ],
+            "defines": [],
+            "compilerPath": "${env:PICO_INSTALL_PATH}/bin/arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-arm",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
 }
 ```
 
