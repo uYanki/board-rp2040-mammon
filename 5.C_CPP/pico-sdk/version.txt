@@ -1,0 +1,6 @@
+pico-sdk-1.5.1
+btstack-master_20230822
+cyw43-driver-main_20230822
+lwip-master_20230822
+mbedtls-3.4.1
+tinyusb-0.15.0

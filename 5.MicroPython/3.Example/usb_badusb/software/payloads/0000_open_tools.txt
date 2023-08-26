@@ -1,0 +1,16 @@
+DELAY 1000
+GUI r
+DELAY 300
+REM  计算器
+STRING calc.exe
+ENTER
+DELAY 1000
+GUI r
+DELAY 300
+REM  记事本
+STRING notepad.exe
+ENTER
+DELAY 200
+STRING hello,world!\n
+REPEAT 3
+ENTER
